@@ -12,17 +12,18 @@
       <div class="logo">
         <h1>Chat App</h1>
       </div>
-
-      <div class="Message_section">
-        <div class="Entry"></div>
+      <div class="room-info">
+        <div class="Entry">Room Members</div>
+        <div class="join-message"></div>
       </div>
-      <div>
-        <input
+      <div class="Message_section"></div>
+      <div class="input-section">
+        <textarea
           type="text"
           class="inp"
           placeholder="Write a message"
           id="inpMssg"
-        />
+        ></textarea>
       </div>
     </section>
     <script src="/socket.io/socket.io.js"></script>
