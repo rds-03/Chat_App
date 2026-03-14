@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/icon.png" type="image/png" />
+  </head>
+  <body>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay">
+      <div class="modal">
+        <h1>Chat App</h1>
+        <input id="username-input" type="text" placeholder="Your name" maxlength="30" />
+        <input id="room-id-input" type="text" placeholder="Room ID" maxlength="20" />
+        <p id="modal-error" class="modal-error"></p>
+        <div class="modal-actions">
+          <button id="create-room-btn">Create Room</button>
+          <button id="join-room-btn" class="secondary">Join Room</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat UI -->
+    <div id="chat-container" class="container" style="display: none">
+      <header class="chat-header">
+        <h1>Chat App</h1>
+        <span id="room-title" class="room-title"></span>
+      </header>
+
+      <div class="members-bar">
+        <span class="members-label">Members:</span>
+        <div id="members-section" class="members-list"></div>
+      </div>
+
+      <div id="message-section" class="message-section"></div>
+
+      <div class="input-section">
+        <textarea
+          id="message-input"
+          class="message-input"
+          placeholder="Write a message... (Enter to send, Shift+Enter for new line)"
+          rows="1"
+        ></textarea>
+        <button id="send-btn" class="send-btn">Send</button>
+      </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+  </body>
+</html>
