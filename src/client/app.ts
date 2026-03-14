@@ -16,10 +16,16 @@ const messageSection = document.getElementById('message-section') as HTMLDivElem
 const membersSection = document.getElementById('members-section') as HTMLDivElement;
 const sendBtn = document.getElementById('send-btn') as HTMLButtonElement;
 const roomTitle = document.getElementById('room-title') as HTMLSpanElement;
+const typingIndicator = document.getElementById('typing-indicator') as HTMLDivElement;
 
 let currentUser = '';
 let pendingRoomId = '';
 let inChat = false;
+
+// Typing state
+const typingUsers = new Set<string>();
+let isTyping = false;
+let typingTimeout: ReturnType<typeof setTimeout> | null = null;
 
 const socket: AppSocket = io();
 
@@ -40,6 +46,21 @@ socket.on('messageToRoom', (msg) => {
 
 socket.on('errorMessage', (error) => {
   showModalError(error);
+});
+
+socket.on('systemMessage', (text) => {
+  addSystemMessage(text);
+  scrollToBottom();
+});
+
+socket.on('userTyping', (username) => {
+  typingUsers.add(username);
+  updateTypingIndicator();
+});
+
+socket.on('userStoppedTyping', (username) => {
+  typingUsers.delete(username);
+  updateTypingIndicator();
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -96,6 +117,26 @@ function scrollToBottom(): void {
   messageSection.scrollTop = messageSection.scrollHeight;
 }
 
+function addSystemMessage(text: string): void {
+  const div = document.createElement('div');
+  div.classList.add('system-message');
+  div.textContent = text;
+  messageSection.appendChild(div);
+}
+
+function updateTypingIndicator(): void {
+  if (typingUsers.size === 0) {
+    typingIndicator.textContent = '';
+    typingIndicator.style.display = 'none';
+  } else if (typingUsers.size === 1) {
+    typingIndicator.textContent = `${[...typingUsers][0]} is typing...`;
+    typingIndicator.style.display = 'block';
+  } else {
+    typingIndicator.textContent = `${typingUsers.size} people are typing...`;
+    typingIndicator.style.display = 'block';
+  }
+}
+
 function sendMessage(): void {
   const message = messageInput.value.trim();
   if (!message) return;
@@ -107,6 +148,13 @@ function sendMessage(): void {
 
   messageInput.value = '';
   messageInput.style.height = 'auto';
+
+  if (isTyping) {
+    isTyping = false;
+    if (typingTimeout) clearTimeout(typingTimeout);
+    socket.emit('stopTyping');
+  }
+
   scrollToBottom();
 }
 
@@ -156,4 +204,17 @@ messageInput.addEventListener('keydown', (e) => {
 messageInput.addEventListener('input', function () {
   this.style.height = 'auto';
   this.style.height = `${this.scrollHeight}px`;
+
+  if (!inChat) return;
+
+  if (!isTyping) {
+    isTyping = true;
+    socket.emit('typing');
+  }
+
+  if (typingTimeout) clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    isTyping = false;
+    socket.emit('stopTyping');
+  }, 1500);
 });

@@ -25,6 +25,7 @@ export function registerHandlers(io: TypedServer, socket: TypedSocket): void {
     socket.join(roomId);
 
     io.to(roomId).emit('roomUsers', rooms[roomId]);
+    io.to(roomId).emit('systemMessage', `${username} created the room`);
     console.log(`[room] "${username}" created room "${roomId}"`);
   });
 
@@ -45,6 +46,7 @@ export function registerHandlers(io: TypedServer, socket: TypedSocket): void {
     socket.join(roomId);
 
     io.to(roomId).emit('roomUsers', rooms[roomId]);
+    io.to(roomId).emit('systemMessage', `${username} joined the room`);
     console.log(`[room] "${username}" joined room "${roomId}"`);
   });
 
@@ -60,6 +62,18 @@ export function registerHandlers(io: TypedServer, socket: TypedSocket): void {
     socket.broadcast.to(roomId).emit('messageToRoom', fullMessage);
   });
 
+  socket.on('typing', () => {
+    const { roomId, username } = socket.data;
+    if (!roomId || !username) return;
+    socket.broadcast.to(roomId).emit('userTyping', username);
+  });
+
+  socket.on('stopTyping', () => {
+    const { roomId, username } = socket.data;
+    if (!roomId || !username) return;
+    socket.broadcast.to(roomId).emit('userStoppedTyping', username);
+  });
+
   socket.on('disconnect', () => {
     const { roomId, username } = socket.data;
     if (!roomId || !username || !rooms[roomId]) return;
@@ -71,6 +85,7 @@ export function registerHandlers(io: TypedServer, socket: TypedSocket): void {
       delete rooms[roomId];
       console.log(`[room] "${roomId}" deleted (empty)`);
     } else {
+      io.to(roomId).emit('systemMessage', `${username} left the room`);
       console.log(`[room] "${username}" left room "${roomId}"`);
     }
   });
