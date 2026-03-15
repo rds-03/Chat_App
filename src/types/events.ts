@@ -16,6 +16,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   createRoom: (roomId: string, username: string) => void;
   joinRoom: (roomId: string, username: string) => void;
+  rejoinRoom: (roomId: string, username: string) => void;
   message: (msg: Pick<Message, 'user' | 'message'>) => void;
   typing: () => void;
   stopTyping: () => void;

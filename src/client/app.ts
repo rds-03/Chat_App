@@ -17,6 +17,8 @@ const membersSection = document.getElementById('members-section') as HTMLDivElem
 const sendBtn = document.getElementById('send-btn') as HTMLButtonElement;
 const roomTitle = document.getElementById('room-title') as HTMLSpanElement;
 const typingIndicator = document.getElementById('typing-indicator') as HTMLDivElement;
+const connectionStatus = document.getElementById('connection-status') as HTMLDivElement;
+const statusText = connectionStatus.querySelector('.status-text') as HTMLSpanElement;
 
 let currentUser = '';
 let pendingRoomId = '';
@@ -61,6 +63,25 @@ socket.on('userTyping', (username) => {
 socket.on('userStoppedTyping', (username) => {
   typingUsers.delete(username);
   updateTypingIndicator();
+});
+
+socket.on('disconnect', () => {
+  connectionStatus.className = 'connection-status disconnected';
+  statusText.textContent = 'Disconnected';
+});
+
+socket.on('connect_error', () => {
+  connectionStatus.className = 'connection-status reconnecting';
+  statusText.textContent = 'Reconnecting...';
+});
+
+socket.on('connect', () => {
+  connectionStatus.className = 'connection-status';
+  statusText.textContent = 'Connected';
+
+  if (inChat && currentUser && pendingRoomId) {
+    socket.emit('rejoinRoom', pendingRoomId, currentUser);
+  }
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -190,6 +211,17 @@ joinRoomBtn.addEventListener('click', () => {
   currentUser = inputs.username;
   pendingRoomId = inputs.roomId;
   socket.emit('joinRoom', inputs.roomId, inputs.username);
+});
+
+messageInput.addEventListener('input', () => {
+  sendBtn.disabled = messageInput.value.trim().length === 0;
+});
+
+// Submit modal on Enter key
+[usernameInput, roomIdInput].forEach((input) => {
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') joinRoomBtn.click();
+  });
 });
 
 sendBtn.addEventListener('click', sendMessage);

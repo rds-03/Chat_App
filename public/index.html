@@ -27,6 +27,10 @@
       <header class="chat-header">
         <h1>Chat App</h1>
         <span id="room-title" class="room-title"></span>
+        <div id="connection-status" class="connection-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Connected</span>
+        </div>
       </header>
 
       <div class="members-bar">
@@ -45,7 +49,7 @@
           placeholder="Write a message... (Enter to send, Shift+Enter for new line)"
           rows="1"
         ></textarea>
-        <button id="send-btn" class="send-btn">Send</button>
+        <button id="send-btn" class="send-btn" disabled>Send</button>
       </div>
     </div>
 

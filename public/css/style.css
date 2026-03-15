@@ -132,6 +132,33 @@ body {
   opacity: 0.85;
 }
 
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  transition: background-color 0.3s;
+}
+
+.connection-status.disconnected .status-dot { background-color: #e53935; }
+.connection-status.reconnecting .status-dot {
+  background-color: #fb8c00;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
 /* ── Members bar ─────────────────────────────────────────────────────────── */
 
 .members-bar {
@@ -300,8 +327,13 @@ body {
   flex-shrink: 0;
 }
 
-.send-btn:hover {
+.send-btn:hover:not(:disabled) {
   background-color: #128c7e;
+}
+
+.send-btn:disabled {
+  background-color: #a8c5c2;
+  cursor: not-allowed;
 }
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */

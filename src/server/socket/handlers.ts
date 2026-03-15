@@ -62,6 +62,19 @@ export function registerHandlers(io: TypedServer, socket: TypedSocket): void {
     socket.broadcast.to(roomId).emit('messageToRoom', fullMessage);
   });
 
+  socket.on('rejoinRoom', (roomId, username) => {
+    if (!rooms[roomId]) rooms[roomId] = [];
+    if (!rooms[roomId].includes(username)) rooms[roomId].push(username);
+
+    socket.data.roomId = roomId;
+    socket.data.username = username;
+    socket.join(roomId);
+
+    io.to(roomId).emit('roomUsers', rooms[roomId]);
+    io.to(roomId).emit('systemMessage', `${username} reconnected`);
+    console.log(`[room] "${username}" rejoined room "${roomId}"`);
+  });
+
   socket.on('typing', () => {
     const { roomId, username } = socket.data;
     if (!roomId || !username) return;
